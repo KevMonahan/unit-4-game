@@ -46,11 +46,13 @@ $(document).ready(function () {
     var playerCharacter = "";
     var enemyCharacters = [];
     var defender = "";
-    var playerAttackPower = 0;
-    var playerHealthPoints = 0;
-    var enemyHealthPoints = 0;
+    var startingPlayerPower = 0;
+    var startingPlayerHealth = 0;
+    var startingEnemyHealth = 0;
     var defenderDamage = 0;
     var defenderHealth = 0;
+    
+   
 
     for (var character in allCharacters) {
         var characterCard = '<div class="col-md-3"><div class="card startingZerg" style="width: 18rem;" value="' + allCharacters[character].type + '">'
@@ -63,25 +65,14 @@ $(document).ready(function () {
 
         $("#allCharacters").append(characterCard);
     }
-    $("#enemyDiv").on("click", ".enemies", function () {
 
-
-        var getDefender = $(this).attr("value");
-
-
-        defender = getDefenderByType(getDefender);
-        console.log(defender);
-        populateDefender(defender);
-
-
-    });
 
     $(".startingZerg").on("click", function () {
 
         var getPlayer = $(this).attr("value");
 
         playerCharacter = getCharacterByType(getPlayer);
-
+        startingPlayerHealth = playerCharacter["Health Points"];
 
 
         var playerCard = '<div class="col-md-3"><div class="card" style="width: 18rem;" value="' + playerCharacter.type + '">'
@@ -97,6 +88,25 @@ $(document).ready(function () {
         $("#intro").hide();
     });
 
+    $("#enemyDiv").on("click", ".enemies", function () {
+
+        
+        var getDefender = $(this).attr("value");
+
+
+        defender = getDefenderByType(getDefender);
+        startingEnemyHealth = defender["Health Points"];
+        defenderDamage = defender["Counter Attack Points"]
+        populateDefender(defender);
+
+        $("#enemyDiv").hide();
+
+    });
+
+    $("button").on("click", function() {
+        
+        attackEnemy(startingEnemyHealth, startingPlayerPower, startingPlayerHealth);
+    })
 
 
     function getCharacterByType(type) {
@@ -121,11 +131,26 @@ $(document).ready(function () {
 
     }
 
-    function attackEnemy(playerCharacter, defender) {
-        playerAttackPower = playerCharacter["Attack Power"];
-        playerHealthPoints = playerCharacter["Health Points"];
-        defenderDamage = defender["Computer Attack Power"];
-        defenderHealth = defender["Health Points"]
+    function attackEnemy(startingEnemyHealth, startingPlayerPower, startingPlayerHealth) {        
+
+        startingPlayerPower = startingPlayerPower + playerCharacter["Attack Power"];
+        startingEnemyHealth = startingEnemyHealth - startingPlayerPower;
+        startingPlayerHealth = startingPlayerHealth - defender["Computer Attack Power"];
+        
+
+        if (startingEnemyHealth <= 0) {
+            $("#fightText").html("<h4>You have defeated the enemy</h4>");
+            defender.stillAlive == false;
+            populateEnemyCharacters(allCharacters);
+            $("#enemyDiv").show();
+        }
+
+        if (startingPlayerHealth <= 0) {
+            $("#fightText").html("<h4>You have been defeated! Refresh to try again</h4>");
+        }
+        console.log(startingPlayerPower);
+        console.log(startingPlayerHealth);
+        console.log(startingEnemyHealth);
     }
 
     function resetGame() {
@@ -147,7 +172,7 @@ $(document).ready(function () {
             unpickedCards += '<div class="card-img-overlay">'
             unpickedCards += '<h5 class="card-title">' + enemyCharacters[unpicked].type + '</h5>'
             unpickedCards += '<p class="card-text"> Health Points = ' + enemyCharacters[unpicked]["Health Points"] + '</p>'
-            unpickedCards += '<p class="card-text"> Attack Power = ' + enemyCharacters[unpicked]["Attack Power"] + '</p>'
+            unpickedCards += '<p class="card-text"> CPU Attack Power = ' + enemyCharacters[unpicked]["Computer Attack Power"] + '</p>'
 
             $("#enemyDiv").append(unpickedCards);
         }
@@ -159,7 +184,7 @@ $(document).ready(function () {
         defenderCard += '<div class="card-img-overlay">'
         defenderCard += '<h5 class="card-title">' + defender.type + '</h5>'
         defenderCard += '<p class="card-text"> Health Points = ' + defender["Health Points"] + '</p>'
-        defenderCard += '<p class="card-text"> Attack Power = ' + defender["Attack Power"] + '</p>'
+        defenderCard += '<p class="card-text"> Computer Attack Power = ' + defender["Computer Attack Power"] + '</p>'
 
         $("#defenderDiv").append(defenderCard);
     }
