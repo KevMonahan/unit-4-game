@@ -52,20 +52,7 @@ $(document).ready(function () {
     var defenderDamage = 0;
     var defenderHealth = 0;
     
-   
-
-    for (var character in allCharacters) {
-        var characterCard = '<div class="col-md-3"><div class="card startingZerg" style="width: 18rem;" value="' + allCharacters[character].type + '">'
-        characterCard += `<img class="card-img-top" ` + allCharacters[character].imgurl + ` alt="Character Image">`
-        characterCard += `<div class="card-img-overlay">`
-        characterCard += `<h5 class="card-title">` + allCharacters[character].type + `</h5>`
-        characterCard += `<p class="card-text"> Health Points = ` + allCharacters[character]["Health Points"] + `</p>`
-        characterCard += `<p class="card-text"> Attack Power = ` + allCharacters[character]["Attack Power"] + `</p>`
-
-
-        $("#allCharacters").append(characterCard);
-    }
-
+    populateAllCharacters(allCharacters);
 
     $(".startingZerg").on("click", function () {
 
@@ -74,16 +61,8 @@ $(document).ready(function () {
         playerCharacter = getCharacterByType(getPlayer);
         startingPlayerHealth = playerCharacter["Health Points"];
 
-
-        var playerCard = '<div class="col-md-3"><div class="card" style="width: 18rem;" value="' + playerCharacter.type + '">'
-        playerCard += '<img class="card-img-top" ' + playerCharacter.imgurl + 'alt="Character Image">'
-        playerCard += '<div class="card-img-overlay">'
-        playerCard += '<h5 class="card-title">' + playerCharacter.type + '</h5>'
-        playerCard += '<p class="card-text"> Health Points = ' + playerCharacter["Health Points"] + '</p>'
-        playerCard += '<p class="card-text"> Attack Power = ' + playerCharacter["Attack Power"] + '</p>'
-
-        populateEnemyCharacters(allCharacters);
-        $("#playerDiv").append(playerCard);
+        populatePlayerCharacter(playerCharacter);
+        
         $("#allCharacters").hide();
         $("#intro").hide();
     });
@@ -105,7 +84,8 @@ $(document).ready(function () {
 
     $("button").on("click", function() {
         
-        attackEnemy(startingEnemyHealth, startingPlayerPower, startingPlayerHealth);
+        attackEnemy(playerCharacter, defender);
+
     })
 
 
@@ -131,37 +111,60 @@ $(document).ready(function () {
 
     }
 
-    function attackEnemy(startingEnemyHealth, startingPlayerPower, startingPlayerHealth) {        
+    function attackEnemy(playerCharacter, defender) {        
 
         startingPlayerPower = startingPlayerPower + playerCharacter["Attack Power"];
         startingEnemyHealth = startingEnemyHealth - startingPlayerPower;
         startingPlayerHealth = startingPlayerHealth - defender["Computer Attack Power"];
         
+        defender["Health Points"] = startingEnemyHealth;
+        playerCharacter["Health Points"] = startingPlayerHealth;
+        playerCharacter["Attack Points"] = startingPlayerPower;
+
+        populatePlayerCharacter(playerCharacter);
+        populateDefender(defender);
 
         if (startingEnemyHealth <= 0) {
-            $("#fightText").html("<h4>You have defeated the enemy</h4>");
-            defender.stillAlive == false;
+            $("#fightText").html("<h2>You have defeated the enemy</h2>");
+            defender.stillAlive = false;
             populateEnemyCharacters(allCharacters);
             $("#enemyDiv").show();
+            $("#defenderDiv").empty();
         }
 
         if (startingPlayerHealth <= 0) {
-            $("#fightText").html("<h4>You have been defeated! Refresh to try again</h4>");
+            $("#fightText").html("<h2>You have been defeated! Refresh to try again</h2>");
         }
-        console.log(startingPlayerPower);
-        console.log(startingPlayerHealth);
-        console.log(startingEnemyHealth);
+
+
     }
 
     function resetGame() {
         $("#playerDiv").empty();
         $("#enemyDiv").empty();
     }
+    
+    
+    function populateAllCharacters(allCharacters){
+
+    for (var character in allCharacters) {
+        var characterCard = '<div class="col-md-3"><div class="card startingZerg" style="width: 18rem;" value="' + allCharacters[character].type + '">'
+        characterCard += `<img class="card-img-top" ` + allCharacters[character].imgurl + ` alt="Character Image">`
+        characterCard += `<div class="card-img-overlay">`
+        characterCard += `<h5 class="card-title">` + allCharacters[character].type + `</h5>`
+        characterCard += `<p class="card-text"> Health Points = ` + allCharacters[character]["Health Points"] + `</p>`
+        characterCard += `<p class="card-text"> Attack Power = ` + allCharacters[character]["Attack Power"] + `</p>`
+
+
+        $("#allCharacters").append(characterCard);
+    }
+   }
 
     function populateEnemyCharacters(allCharacters) {
         $("#enemyDiv").empty();
+        enemyCharacters = [];
         for (var characters in allCharacters) {
-            if (allCharacters[characters].playerPickedUnit === false && allCharacters[characters].stillAlive === true) {
+            if (allCharacters[characters].stillAlive === true && allCharacters[characters].playerPickedUnit === false) {
                 enemyCharacters.push(allCharacters[characters]);
             }
         }
@@ -179,6 +182,8 @@ $(document).ready(function () {
     }
 
     function populateDefender(defender) {
+        $("#defenderDiv").empty();
+
         var defenderCard = '<div class="col-md-3"><div class="card" style="width: 18rem;" value="' + defender.type + '">'
         defenderCard += '<img class="card-img-top" ' + defender.imgurl + ' alt="Character Image">'
         defenderCard += '<div class="card-img-overlay">'
@@ -187,6 +192,19 @@ $(document).ready(function () {
         defenderCard += '<p class="card-text"> Computer Attack Power = ' + defender["Computer Attack Power"] + '</p>'
 
         $("#defenderDiv").append(defenderCard);
+    }
+
+    function populatePlayerCharacter(playerCharacter){
+        $("#playerDiv").empty();
+        var playerCard = '<div class="col-md-3"><div class="card" style="width: 18rem;" value="' + playerCharacter.type + '">'
+        playerCard += '<img class="card-img-top" ' + playerCharacter.imgurl + 'alt="Character Image">'
+        playerCard += '<div class="card-img-overlay">'
+        playerCard += '<h5 class="card-title">' + playerCharacter.type + '</h5>'
+        playerCard += '<p class="card-text"> Health Points = ' + playerCharacter["Health Points"] + '</p>'
+        playerCard += '<p class="card-text"> Attack Power = ' + playerCharacter["Attack Power"] + '</p>'
+
+        populateEnemyCharacters(allCharacters);
+        $("#playerDiv").append(playerCard);
     }
 
 })
