@@ -4,7 +4,7 @@ $(document).ready(function () {
     var Lurker = {
         type: 'Lurker',
         'Health Points': 200,
-        'Attack Power': 5,
+        'Attack Power': 4,
         'Computer Attack Power': 20,
         'playerPickedUnit': false,
         'enemyPickedUnit': false,
@@ -14,7 +14,7 @@ $(document).ready(function () {
     var Hydralisk = {
         type: 'Hydralisk',
         'Health Points': 175,
-        'Attack Power': 6,
+        'Attack Power': 5,
         'Computer Attack Power': 15,
         'playerPickedUnit': false,
         'enemyPickedUnit': false,
@@ -24,7 +24,7 @@ $(document).ready(function () {
     var Zergling = {
         type: 'Zergling',
         'Health Points': 150,
-        'Attack Power': 7,
+        'Attack Power': 6,
         'Computer Attack Power': 10,
         'playerPickedUnit': false,
         'enemyPickedUnit': false,
@@ -33,8 +33,8 @@ $(document).ready(function () {
     }
     var Rhynadon = {
         type: 'Rhynadon',
-        'Health Points': 120,
-        'Attack Power': 8,
+        'Health Points': 140,
+        'Attack Power': 7,
         'Computer Attack Power': 5,
         'playerPickedUnit': false,
         'enemyPickedUnit': false,
@@ -85,7 +85,7 @@ $(document).ready(function () {
     $("button").on("click", function() {
         
         attackEnemy(playerCharacter, defender);
-
+        populatePlayerCharacter(playerCharacter);
     })
 
 
@@ -119,7 +119,7 @@ $(document).ready(function () {
         
         defender["Health Points"] = startingEnemyHealth;
         playerCharacter["Health Points"] = startingPlayerHealth;
-        playerCharacter["Attack Points"] = startingPlayerPower;
+        playerCharacter["Attack Power"] = startingPlayerPower;
 
         populatePlayerCharacter(playerCharacter);
         populateDefender(defender);
@@ -127,6 +127,16 @@ $(document).ready(function () {
         if (startingEnemyHealth <= 0) {
             $("#fightText").html("<h2>You have defeated the enemy</h2>");
             defender.stillAlive = false;
+            for (character in allCharacters) {
+                var checkEnemyArrayLength = [];
+
+                if (allCharacters[characters].stillAlive === true && allCharacters[characters].playerPickedUnit === false) {
+                    checkEnemyArrayLength.push(allCharacters[characters]);
+                }
+                if (checkEnemyArrayLength.length === 0) {
+                    $("#fightText").html("<h2>You have defeated all opponents! Refresh to play again!")
+                }
+            }
             populateEnemyCharacters(allCharacters);
             $("#enemyDiv").show();
             $("#defenderDiv").empty();
