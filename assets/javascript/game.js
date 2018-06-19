@@ -65,13 +65,14 @@ $(document).ready(function () {
         
         $("#allCharacters").hide();
         $("#intro").hide();
+        $("#fightText").empty();
     });
 
     $("#enemyDiv").on("click", ".enemies", function () {
 
         
         var getDefender = $(this).attr("value");
-
+        defender = "";
 
         defender = getDefenderByType(getDefender);
         startingEnemyHealth = defender["Health Points"];
@@ -83,9 +84,18 @@ $(document).ready(function () {
     });
 
     $("button").on("click", function() {
-        
+        $("#fightText").empty();
+        if (!defender){
+            $("#fightText").html("<h2>There is currently no enemy selected </h2>")
+        }
+        if (!playerCharacter) {
+            $("#fightText").html("<h2>Please select your own hero first!</h2>")
+        }
+         if (playerCharacter && defender) {
         attackEnemy(playerCharacter, defender);
         populatePlayerCharacter(playerCharacter);
+        $("#fightText").append(`<h2>You did ${playerCharacter["Attack Power"]} damage to ${defender.type}`);
+        }
     })
 
 
@@ -101,6 +111,7 @@ $(document).ready(function () {
 
 
     function getDefenderByType(type) {
+        
         for (enemies in enemyCharacters) {
             if (enemyCharacters[enemies].type === type) {
                 defender = enemyCharacters[enemies];
@@ -125,7 +136,7 @@ $(document).ready(function () {
         populateDefender(defender);
 
         if (startingEnemyHealth <= 0) {
-            $("#fightText").html("<h2>You have defeated the enemy</h2>");
+            $("#fightText").append("<h2>You have defeated the enemy</h2>");
             defender.stillAlive = false;
             for (character in allCharacters) {
                 var checkEnemyArrayLength = [];
